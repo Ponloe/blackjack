@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173d32">
+  <title>Count Lab — Blackjack practice</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Count Lab home"><span class="brand-mark">♠</span> COUNT<span class="brand-light">LAB</span><span class="brand-divider"></span><span class="brand-caption">THE PRACTICE TABLE</span></a>
+    <div class="topbar-right"><span id="connection" class="connection"><i></i><span>Connecting…</span></span><button id="help-button" class="text-button">How to practice <span aria-hidden="true">↗</span></button></div>
+  </header>
+
+  <main>
+    <section class="page-heading">
+      <div><p class="eyebrow">A LITTLE PRACTICE. A SHARPER COUNT.</p><h1>Your table. Your pace.</h1><p class="subtitle">Deal a hand, follow the count, and build your instincts.</p></div>
+      <div class="session-tag"><span class="live-dot"></span> LOCAL PRACTICE <span id="session-number">SHOE 01</span></div>
+    </section>
+    <div id="connection-warning" class="notice" hidden>Connection lost. Card entry is paused while we reconnect. Your saved session will return automatically.</div>
+    <div id="toast" role="status" aria-live="polite" hidden></div>
+
+    <div class="dashboard">
+      <div class="main-column">
+        <section class="panel camera-panel" aria-labelledby="camera-title">
+          <div class="panel-heading"><div class="heading-with-icon"><span class="small-icon" aria-hidden="true">◉</span><h2 id="camera-title">Practice view</h2></div><span id="camera-badge" class="badge">CAMERA OFF</span></div>
+          <div class="camera-stage" id="camera-stage">
+            <video id="preview" autoplay muted playsinline hidden aria-label="Webcam or recorded practice video"></video>
+            <img id="server-preview" hidden alt="Local OpenCV camera preview with card outlines">
+            <div class="viewfinder" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+            <div class="camera-empty" id="camera-empty"><div class="camera-symbol" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><rect x="7" y="13" width="34" height="26" rx="5"/><path d="m16 13 3-5h10l3 5"/><circle cx="24" cy="26" r="8"/></svg></div><h3>A seat at your own table.</h3><p>Point your webcam at your practice deck.<br>Keep cards well lit and fully in view.</p><button id="start-camera" class="button camera-start">Enable webcam <span aria-hidden="true">↗</span></button><span class="camera-privacy">Stays on this laptop. No audio or uploads.</span></div>
+            <div class="camera-overlay"><span><i id="preview-dot"></i><span id="preview-label">PREVIEW READY</span></span><span>MANUAL COUNTING</span></div>
+          </div>
+          <div class="camera-toolbar">
+            <label class="inline-label">Source <select id="camera-source" aria-label="Preview source"><option value="browser">Browser webcam</option><option value="opencv">OpenCV webcam</option><option value="file">Recorded video</option></select></label>
+            <select id="camera-device" aria-label="Webcam device"><option value="">Default webcam</option></select>
+            <label id="camera-index-label" class="inline-label" hidden>Camera <input id="camera-index" type="number" min="0" max="10" value="0" aria-label="OpenCV camera index"></label>
+            <label id="video-file-label" class="file-button" hidden>Choose video<input id="video-file" type="file" accept="video/*"></label>
+            <button id="camera-toggle" class="text-button">Start preview</button>
+          </div>
+          <p id="camera-message" class="panel-note" role="status">Webcam preview is optional. Add visible cards below to update your count. Recognition is not enabled yet.</p>
+        </section>
+
+        <section class="panel table-panel" aria-labelledby="table-title">
+          <div class="panel-heading"><h2 id="table-title">On the table</h2><span class="muted" id="hand-number">Hand 01</span></div>
+          <div class="table-hands">
+            <div class="dealer-hand"><div class="hand-label"><span>DEALER</span><span id="dealer-description">Waiting for up-card</span></div><div id="dealer-cards" class="cards"><span class="card-placeholder">?</span></div><p class="hand-hint">Only enter the hole card after it is revealed.</p></div>
+            <div class="player-hand"><div class="hand-label"><span id="player-label">YOUR HAND</span><span id="hand-total">—</span></div><div id="player-cards" class="cards"><span class="card-placeholder">+</span><span class="card-placeholder">+</span></div><p class="hand-hint" id="hand-hint">Add your first two cards to get a recommendation.</p></div>
+          </div>
+        </section>
+
+        <section class="panel entry-panel" aria-labelledby="entry-title">
+          <div class="panel-heading"><h2 id="entry-title">Add a card</h2><span class="muted">Click a rank or use your keyboard</span></div>
+          <fieldset id="entry-controls" disabled>
+            <div class="entry-options"><label>Deal to <select id="card-source"><option value="player">Your hand</option><option value="dealer_up">Dealer up-card</option><option value="dealer_hole">Dealer revealed cards</option><option value="other">Other player / exposed card</option></select></label><label>Hand <select id="hand-id"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></label><label class="checkbox-label"><input id="from-split" type="checkbox"> From a split</label></div>
+            <div id="rank-buttons" class="rank-buttons" aria-label="Card ranks"></div>
+          </fieldset>
+          <div class="entry-bottom"><span><kbd>A</kbd>–<kbd>K</kbd> ranks · <kbd>0</kbd> ten · <kbd>U</kbd> undo</span><span class="saved-label" id="save-status">Saved on this laptop</span></div>
+        </section>
+
+        <section class="panel recent-panel" aria-labelledby="recent-title">
+          <div class="panel-heading"><h2 id="recent-title">Recent cards</h2><span class="muted">Latest 30 in this shoe</span></div>
+          <div id="recent-empty" class="empty-list"><span aria-hidden="true">♧</span><p>A clean slate.<small>Your dealt cards will appear here. Fix a rank or remove a card at any time.</small></p></div>
+          <div id="recent-list" class="recent-list"></div>
+        </section>
+      </div>
+
+      <aside class="side-column">
+        <section class="count-panel" aria-labelledby="count-title">
+          <div class="count-heading"><h2 id="count-title">The count</h2><span>HI–LO</span></div>
+          <div class="count-grid"><div><p>Running count</p><strong id="running-count">0</strong><small>All exposed cards</small></div><div><p>True count</p><strong id="true-count">0.0</strong><small id="rounding-label">Unrounded</small></div></div>
+          <div class="count-detail"><span>Cards seen <b id="cards-seen">0</b></span><span>Decks left <b id="decks-left">6.00</b></span></div>
+          <div class="shoe-progress"><progress id="shoe-progress" value="0" max="1" aria-label="Shoe penetration"></progress></div>
+          <div class="count-foot"><span id="shoe-progress-label">0% of shoe seen</span><span id="shuffle-label">Shuffle at 75%</span></div>
+          <p id="shuffle-warning" hidden>Cut card reached — time for a new shoe.</p>
+        </section>
+
+        <section class="panel recommendation" aria-labelledby="recommendation-title">
+          <div class="panel-heading"><h2 id="recommendation-title">Your next move</h2><span class="tiny-label">BASIC STRATEGY</span></div>
+          <div class="action-block"><span id="action-symbol" aria-hidden="true">↗</span><h3 id="recommended-action">Ready when you are.</h3><p id="action-detail">Add your hand and the dealer’s up-card to see the recommended play.</p></div>
+          <div class="recommendation-foot" id="rules-summary">6 decks · S17 · DAS</div>
+        </section>
+
+        <section class="panel session-panel" aria-labelledby="session-title">
+          <div class="panel-heading"><h2 id="session-title">Keep practicing</h2><span aria-hidden="true">↻</span></div>
+          <div class="session-actions"><button id="new-hand" class="button button-primary" disabled>Next hand <span aria-hidden="true">→</span></button><div><button id="undo" class="button button-secondary" disabled>↶ Undo</button><button id="new-shoe" class="button button-secondary" disabled>New shoe</button></div></div>
+          <p class="panel-note">A new hand keeps your count. A new shoe resets it.</p>
+        </section>
+
+        <section class="panel rules-panel" aria-labelledby="rules-title">
+          <div class="panel-heading"><h2 id="rules-title">Table rules</h2><span aria-hidden="true">≡</span></div>
+          <form id="rules-form"><fieldset id="rules-controls" disabled>
+            <div class="rule-row"><label for="rule-decks">Decks in shoe</label><select id="rule-decks"><option>4</option><option>5</option><option selected>6</option><option>7</option><option>8</option></select></div>
+            <div class="rule-row"><label for="rule-h17">Dealer soft 17</label><select id="rule-h17"><option value="false">Stand (S17)</option><option value="true">Hit (H17)</option></select></div>
+            <div class="rule-row"><label for="rule-das">Double after split</label><input class="switch" type="checkbox" id="rule-das" checked></div>
+            <div class="rule-row"><label for="rule-surrender">Late surrender</label><input class="switch" type="checkbox" id="rule-surrender"></div>
+            <div class="rule-row"><label for="rule-rounding">True count rounding</label><select id="rule-rounding"><option value="none">None</option><option value="floor">Floor</option><option value="round">Nearest</option></select></div>
+            <div class="penetration-label"><label for="rule-penetration">Shuffle point</label><output id="penetration-output" for="rule-penetration">75%</output></div><input id="rule-penetration" type="range" min="10" max="90" step="5" value="75">
+            <button class="button button-secondary apply-rules" type="submit">Apply rules</button>
+          </fieldset></form>
+          <p class="panel-note">3:2 blackjack · dealer peek · up to 4 split hands. Changing deck count starts a new shoe.</p>
+        </section>
+        <div class="count-key"><span>THE HI–LO QUICK GUIDE</span><div><p><b>2–6</b><em>+1</em></p><p><b>7–9</b><em>0</em></p><p><b>10–A</b><em>−1</em></p></div></div>
+      </aside>
+    </div>
+    <footer><span>COUNT LAB <span class="footer-dot">·</span> Made for the practice table.</span><span>Local only. No account. No distractions.</span></footer>
+  </main>
+
+  <dialog id="fix-dialog"><form id="fix-form"><div class="dialog-heading"><h2>Correct a card</h2><button type="button" class="icon-button close-dialog" aria-label="Close correction">×</button></div><p class="muted">This replaces the card without counting it twice. Undo restores the original.</p><label>Rank<select id="fix-rank"></select></label><label>Source<select id="fix-source"><option value="player">Your hand</option><option value="dealer_up">Dealer up-card</option><option value="dealer_hole">Dealer revealed cards</option><option value="other">Other player / exposed card</option></select></label><label>Hand ID<input id="fix-hand" value="1" maxlength="32" pattern="[a-zA-Z0-9_-]+" required></label><label class="checkbox-label"><input id="fix-split" type="checkbox"> From a split</label><button type="submit" class="button button-primary">Save correction</button></form></dialog>
+  <dialog id="help-dialog"><div class="dialog-heading"><h2>Find your rhythm.</h2><button class="icon-button close-dialog" aria-label="Close help">×</button></div><ol><li><strong>Set your table rules.</strong> Match the rules to your practice game.</li><li><strong>Start your webcam.</strong> Choose Browser webcam and allow camera access. No microphone access is requested.</li><li><strong>Enter every exposed card.</strong> Select its source, then click a rank. Camera recognition is not active yet.</li><li><strong>Check your decision.</strong> The recommendation uses basic strategy after the dealer has checked for blackjack.</li><li><strong>Move to the next hand.</strong> Your running count continues until you start a new shoe.</li></ol><p>To practice splits, use Fix on a card to move it to another hand ID, mark each split hand “From a split,” then add its drawn cards. Cards stay counted once.</p><p><strong>Camera trouble?</strong> Use localhost, allow camera access in your browser and operating system, and close other apps using the webcam. OpenCV mode uses the camera permission of the terminal running Python.</p><p><strong>Shortcuts:</strong> A, 2–9, 0 or T, J, Q, K enter ranks. U undoes. N starts the next hand. Shortcuts pause while editing a form.</p></dialog>
+</body>
+</html>

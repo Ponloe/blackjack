@@ -1,0 +1,65 @@
+{
+  "milestone": 2,
+  "python_version": "3.13.1",
+  "strategy_sha256": "0b477ac8f6ab2b648dcf64e3b4eb826a849323ed3904981bdecc0a614d258479",
+  "rules": {
+    "decks": 6,
+    "dealer_hits_soft_17": false,
+    "double_after_split": true,
+    "surrender": false,
+    "penetration": 0.75
+  },
+  "fixed_rules": {
+    "blackjack_payout": 1.5,
+    "dealer_peek": true,
+    "max_split_hands": 4,
+    "resplit_aces": false,
+    "hit_split_aces": false,
+    "double_any_first_two": true,
+    "insurance": false
+  },
+  "notes": [
+    "Rates are fractions, not percentages. House edge is per initial wager.",
+    "The 1M run was extended to a fixed 10M rounds because its interval was wide and only barely overlapped the expected range.",
+    "Both runs use the same seed and their samples overlap; they are not independent replications.",
+    "No seed or strategy changes were made in response to the 1M result.",
+    "Confidence intervals use shoe-cluster standard errors and are approximate.",
+    "Compatibility with the 0.4–0.6% baseline does not prove every strategy cell is optimal."
+  ],
+  "runs": [
+    {
+      "command": "python -m simulation.run --decks 6 --hands 1000000 --seed 20260921 --validate --json",
+      "seed": 20260921,
+      "rounds": 1000000,
+      "player_hands": 1027618,
+      "shoes": 23189,
+      "total_profit": -1944.0,
+      "total_wagered": 1131661,
+      "house_edge": 0.001944,
+      "standard_error": 0.0011472204652879263,
+      "confidence_interval_95": [-0.0003045521119643354, 0.004192552111964336],
+      "round_standard_deviation": 1.1542274702609763,
+      "baseline_check": "compatible",
+      "elapsed_seconds": 13.847661292002158
+    },
+    {
+      "command": "python -m simulation.run --decks 6 --hands 10000000 --seed 20260921 --validate --json",
+      "seed": 20260921,
+      "rounds": 10000000,
+      "player_hands": 10278268,
+      "shoes": 231902,
+      "total_profit": -41567.5,
+      "total_wagered": 11318578,
+      "house_edge": 0.00415675,
+      "standard_error": 0.0003637728723716746,
+      "confidence_interval_95": [0.0034437551701515176, 0.004869744829848482],
+      "round_standard_deviation": 1.1541654472558194,
+      "baseline_check": "compatible",
+      "elapsed_seconds": 140.8049436250003
+    }
+  ],
+  "tests": {
+    "fast": {"command": "python -m pytest -q", "passed": 137, "deselected": 1},
+    "monte_carlo": {"command": "python -m pytest -q -m slow", "passed": 1, "deselected": 137}
+  }
+}

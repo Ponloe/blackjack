@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "description": "Total-dependent American peek strategy, 4–8 decks, double any first two, 3:2 blackjack. Rows list actions against dealer 2 through A. Inheritance applies cell overrides; a null cell means consult the hand total.",
+  "sources": ["https://wizardofodds.com/games/blackjack/strategy/4-decks/"],
+  "dealer_columns": ["2", "3", "4", "5", "6", "7", "8", "9", "10", "A"],
+  "codes": {
+    "H": ["HIT"],
+    "S": ["STAND"],
+    "Dh": ["DOUBLE", "HIT"],
+    "Ds": ["DOUBLE", "STAND"],
+    "P": ["SPLIT"],
+    "Rp": ["SURRENDER", "SPLIT"],
+    "Rh": ["SURRENDER", "HIT"],
+    "Rs": ["SURRENDER", "STAND"]
+  },
+  "rule_sets": {
+    "4-8/S17/DAS/NS": {
+      "tables": {
+        "hard": {
+          "4":  ["H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
+          "5":  ["H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
+          "6":  ["H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
+          "7":  ["H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
+          "8":  ["H", "H", "H", "H", "H", "H", "H", "H", "H", "H"],
+          "9":  ["H", "Dh", "Dh", "Dh", "Dh", "H", "H", "H", "H", "H"],
+          "10": ["Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "H", "H"],
+          "11": ["Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "H"],
+          "12": ["H", "H", "S", "S", "S", "H", "H", "H", "H", "H"],
+          "13": ["S", "S", "S", "S", "S", "H", "H", "H", "H", "H"],
+          "14": ["S", "S", "S", "S", "S", "H", "H", "H", "H", "H"],
+          "15": ["S", "S", "S", "S", "S", "H", "H", "H", "H", "H"],
+          "16": ["S", "S", "S", "S", "S", "H", "H", "H", "H", "H"],
+          "17": ["S", "S", "S", "S", "S", "S", "S", "S", "S", "S"],
+          "18": ["S", "S", "S", "S", "S", "S", "S", "S", "S", "S"],
+          "19": ["S", "S", "S", "S", "S", "S", "S", "S", "S", "S"],
+          "20": ["S", "S", "S", "S", "S", "S", "S", "S", "S", "S"],
+          "21": ["S", "S", "S", "S", "S", "S", "S", "S", "S", "S"]
+        },
+        "soft": {
+          "12": ["H", "H", "H", "H", "Dh", "H", "H", "H", "H", "H"],
+          "13": ["H", "H", "H", "Dh", "Dh", "H", "H", "H", "H", "H"],
+          "14": ["H", "H", "H", "Dh", "Dh", "H", "H", "H", "H", "H"],
+          "15": ["H", "H", "Dh", "Dh", "Dh", "H", "H", "H", "H", "H"],
+          "16": ["H", "H", "Dh", "Dh", "Dh", "H", "H", "H", "H", "H"],
+          "17": ["H", "Dh", "Dh", "Dh", "Dh", "H", "H", "H", "H", "H"],
+          "18": ["S", "Ds", "Ds", "Ds", "Ds", "S", "S", "H", "H", "H"],
+          "19": ["S", "S", "S", "S", "S", "S", "S", "S", "S", "S"],
+          "20": ["S", "S", "S", "S", "S", "S", "S", "S", "S", "S"],
+          "21": ["S", "S", "S", "S", "S", "S", "S", "S", "S", "S"]
+        },
+        "pairs": {
+          "A": ["P", "P", "P", "P", "P", "P", "P", "P", "P", "P"],
+          "2": ["P", "P", "P", "P", "P", "P", null, null, null, null],
+          "3": ["P", "P", "P", "P", "P", "P", null, null, null, null],
+          "4": [null, null, null, "P", "P", null, null, null, null, null],
+          "5": [null, null, null, null, null, null, null, null, null, null],
+          "6": ["P", "P", "P", "P", "P", null, null, null, null, null],
+          "7": ["P", "P", "P", "P", "P", "P", null, null, null, null],
+          "8": ["P", "P", "P", "P", "P", "P", "P", "P", "P", "P"],
+          "9": ["P", "P", "P", "P", "P", null, "P", "P", null, null],
+          "10": [null, null, null, null, null, null, null, null, null, null]
+        }
+      }
+    },
+    "4-8/S17/NDAS/NS": {
+      "extends": "4-8/S17/DAS/NS",
+      "overrides": {"pairs": {"2": {"2": null, "3": null}, "3": {"2": null, "3": null}, "4": {"5": null, "6": null}, "6": {"2": null}}}
+    },
+    "4-8/S17/DAS/LS": {
+      "extends": "4-8/S17/DAS/NS",
+      "overrides": {"hard": {"15": {"10": "Rh"}, "16": {"9": "Rh", "10": "Rh", "A": "Rh"}}}
+    },
+    "4-8/S17/NDAS/LS": {
+      "extends": "4-8/S17/NDAS/NS",
+      "overrides": {"hard": {"15": {"10": "Rh"}, "16": {"9": "Rh", "10": "Rh", "A": "Rh"}}}
+    },
+    "4-8/H17/DAS/NS": {
+      "extends": "4-8/S17/DAS/NS",
+      "overrides": {"hard": {"11": {"A": "Dh"}}, "soft": {"18": {"2": "Ds"}, "19": {"6": "Ds"}}}
+    },
+    "4-8/H17/NDAS/NS": {
+      "extends": "4-8/H17/DAS/NS",
+      "overrides": {"pairs": {"2": {"2": null, "3": null}, "3": {"2": null, "3": null}, "4": {"5": null, "6": null}, "6": {"2": null}}}
+    },
+    "4-8/H17/DAS/LS": {
+      "extends": "4-8/H17/DAS/NS",
+      "overrides": {"hard": {"15": {"10": "Rh", "A": "Rh"}, "16": {"9": "Rh", "10": "Rh", "A": "Rh"}, "17": {"A": "Rs"}}, "pairs": {"8": {"A": "Rp"}}}
+    },
+    "4-8/H17/NDAS/LS": {
+      "extends": "4-8/H17/NDAS/NS",
+      "overrides": {"hard": {"15": {"10": "Rh", "A": "Rh"}, "16": {"9": "Rh", "10": "Rh", "A": "Rh"}, "17": {"A": "Rs"}}, "pairs": {"8": {"A": "Rp"}}}
+    }
+  }
+}
