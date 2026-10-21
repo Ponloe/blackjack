@@ -80,18 +80,20 @@ def create_app(database: str | Path | None = None, camera_factory: Callable[...,
             session.close()
 
     application = FastAPI(title="Count Lab · Blackjack Trainer", lifespan=lifespan)
-    application.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1", "[::1]"])
+    allowed_hosts = ["localhost", "127.0.0.1", "[::1]"]
+    allowed_hosts += [host.strip() for host in os.environ.get("BLACKJACK_ALLOWED_HOSTS", "").split(",") if host.strip()]
+    application.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
     @application.middleware("http")
     async def local_requests(request: Request, call_next: Callable[..., Any]) -> Any:
         if not same_origin(request.headers.get("origin"), request.headers.get("host")):
-            return JSONResponse({"detail": "Open this app directly on localhost"}, status_code=403)
+            return JSONResponse({"detail": "Origin does not match host"}, status_code=403)
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Referrer-Policy"] = "same-origin"
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; script-src 'self'; style-src 'self'; "
-            "img-src 'self' blob:; media-src 'self' blob:; connect-src 'self' ws://localhost:* ws://127.0.0.1:*; "
+            "img-src 'self' blob:; media-src 'self' blob:; connect-src 'self' ws: wss:; "
             "frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
         )
         return response
@@ -101,6 +103,15 @@ def create_app(database: str | Path | None = None, camera_factory: Callable[...,
         return JSONResponse({"detail": str(error)}, status_code=400)
 
     application.include_router(router)
+
+    @application.get("/health/live")
+    async def live() -> dict[str, str]:
+        return {"status": "ok"}
+
+    @application.get("/health/ready")
+    async def ready(request: Request) -> dict[str, str]:
+        request.app.state.service.session.connection.execute("SELECT 1").fetchone()
+        return {"status": "ok"}
 
     @application.post("/api/camera/start")
     async def camera_start(body: CameraInput, request: Request) -> dict[str, Any]:

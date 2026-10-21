@@ -1,0 +1,11 @@
+.git
+.venv
+.pytest_cache
+.hypothesis
+__pycache__
+*.pyc
+*.sqlite3*
+tests
+simulation
+scripts
+README.md

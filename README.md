@@ -1,5 +1,15 @@
 # Blackjack Card Counting Trainer
 
+## Container and Kubernetes learning path
+
+See [the hands-on guide](docs/kubernetes.md) to build the image, run it with
+Docker, deploy it to Minikube, inspect a Service and a LoadBalancer, and then
+adapt the same manifests for a managed cluster. The current application has
+one shared SQLite session and in-process WebSocket broadcasts, so keep one
+replica and one Uvicorn worker. Browser webcam and local video preview can
+still be used from the browser; a container cannot access your laptop's
+OpenCV webcam by default.
+
 Local laptop practice tool, implemented in verified milestones. This repository
 now includes the **local dashboard, saved event-sourced sessions, manual entry,
 live counts and recommendations, and webcam/video previews**, in addition to

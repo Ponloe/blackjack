@@ -47,6 +47,17 @@ def test_cross_origin_rejected(client: TestClient) -> None:
     assert client.get("/api/session/state", headers={"Host": "example.com"}).status_code == 400
 
 
+def test_configured_host_and_health(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("BLACKJACK_ALLOWED_HOSTS", "blackjack.example.com")
+    with TestClient(create_app(":memory:"), base_url="https://blackjack.example.com") as hosted:
+        assert hosted.get("/health/live").json() == {"status": "ok"}
+        assert hosted.get("/health/ready").json() == {"status": "ok"}
+        response = hosted.get("/api/session/state", headers={"Origin": "https://blackjack.example.com"})
+        assert response.status_code == 200
+        assert "wss:" in response.headers["content-security-policy"]
+        assert hosted.get("/api/session/state", headers={"Origin": "https://other.example.com"}).status_code == 403
+
+
 def test_two_tabs_and_reconnection(client: TestClient) -> None:
     with client.websocket_connect("ws://localhost/ws") as first, client.websocket_connect("ws://localhost/ws") as second:
         first.receive_json()
